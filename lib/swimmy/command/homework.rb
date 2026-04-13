@@ -20,32 +20,46 @@ module Swimmy
 
         require 'json'
         names = []
+        ai_numbers = []
+        doc_ids = []
         begin
           json = JSON.parse(result)
           json.each do |doc|
             # デバッグ用: docの中身全体をSlackに送信
             client.say(channel: data.channel, text: "doc: #{doc.inspect}")
             desc = doc["description"]
+            doc_id = doc["id"] || doc["document_id"]
             next unless desc
             # \u003eを>に変換
             desc = desc.gsub(/\\u003e/, ">")
-            # -->(...) まで全体を抽出（前に空白や改行があってもOK）
-            desc.scan(/--\s*>\s*(\([^\)]*\))/).each do |m|
-              names << m[0]
+            # -->(...) まで全体を抽出し、doc_idもセット
+            desc.scan(/--\s*>\s*\(([^!]+) !:([0-9]+)\)/).each do |name, ai_num|
+              names << name.strip
+              ai_numbers << ai_num.strip
+              doc_ids << doc_id.to_s
             end
           end
         rescue JSON::ParserError
           # JSONでなければ全体から-->(...)を抽出
           text = result.gsub(/\\u003e/, ">")
-          names += text.scan(/--\s*>\s*(\([^\)]*\))/).flatten
+          names += text.scan(/--\s*>\s*\(([^!]+) !:([0-9]+)\)/).map { |m| m[0].strip }
+          ai_numbers += text.scan(/--\s*>\s*\(([^!]+) !:([0-9]+)\)/).map { |m| m[1].strip }
+          # doc_idは不明なので空文字で埋める
+          doc_ids += [""] * names.size
         end
 
         if names.empty?
           message = "文書(#{keywords})中に宿題はありません．"
         else
-          message = "文書(#{keywords})中の宿題担当: #{names.uniq.join(", ")}"
+          # 担当者名・AI番号・doc_idをペアで表示
+          message = "文書(#{keywords})中の宿題担当: " + names.zip(ai_numbers, doc_ids).map { |n, a, d| "#{n} (AI#{a})" }.join(", ")
+          client.say(channel: data.channel, text: message)
+          names.zip(ai_numbers, doc_ids).each do |name, ai_num, doc_id|
+            desc_header = "Created from [AI#{ai_num}](https://rask.nomlab.org/documents/#{doc_id}?ai=#{ai_num})"
+            url = "https://rask.nomlab.org/tasks/new?desc_header=#{desc_header}"
+            client.say(channel: data.channel, text: "#{name} のタスク作成: #{url}")
+          end
         end
-        client.say(channel: data.channel, text: message)
         title "homework"
         desc "宿題の有無を表示します．"
         long_desc "homework\n" +
