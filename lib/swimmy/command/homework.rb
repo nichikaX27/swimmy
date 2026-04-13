@@ -13,6 +13,9 @@ module Swimmy
           result = Dir.chdir(cli_dir) do
             `#{cli_path} search-documents --keywords "#{keywords}" 2>&1`
           end
+          # # コマンド出力内容をSlackに送信（デバッグ用）
+          # client.say(channel: data.channel, text: "コマンド出力: #{result}")
+          # client.say(channel: data.channel, text: result) 
         rescue => e
           client.say(channel: data.channel, text: "コマンドの実行中にエラーが発生しました: #{e.message}")
           return
@@ -23,12 +26,11 @@ module Swimmy
         ai_numbers = []
         doc_ids = []
         begin
+          # client.say(channel: data.channel, text: "result: #{result}")
           json = JSON.parse(result)
           json.each do |doc|
-            # デバッグ用: docの中身全体をSlackに送信
-            client.say(channel: data.channel, text: "doc: #{doc.inspect}")
             desc = doc["description"]
-            doc_id = doc["id"] || doc["document_id"]
+            doc_id = doc["id"] 
             next unless desc
             # \u003eを>に変換
             desc = desc.gsub(/\\u003e/, ">")
@@ -44,8 +46,7 @@ module Swimmy
           text = result.gsub(/\\u003e/, ">")
           names += text.scan(/--\s*>\s*\(([^!]+) !:([0-9]+)\)/).map { |m| m[0].strip }
           ai_numbers += text.scan(/--\s*>\s*\(([^!]+) !:([0-9]+)\)/).map { |m| m[1].strip }
-          # doc_idは不明なので空文字で埋める
-          doc_ids += [""] * names.size
+          client.say(channel: data.channel, text: "JSONの解析に失敗しました") if names.any?
         end
 
         if names.empty?
@@ -55,7 +56,7 @@ module Swimmy
           message = "文書(#{keywords})中の宿題担当: " + names.zip(ai_numbers, doc_ids).map { |n, a, d| "#{n} (AI#{a})" }.join(", ")
           client.say(channel: data.channel, text: message)
           names.zip(ai_numbers, doc_ids).each do |name, ai_num, doc_id|
-            desc_header = "Created from [AI#{ai_num}](https://rask.nomlab.org/documents/#{doc_id}?ai=#{ai_num})"
+            desc_header = "Created+from+[AI#{ai_num}](https://rask.nomlab.org/documents/#{doc_id}?ai=#{ai_num})"
             url = "https://rask.nomlab.org/tasks/new?desc_header=#{desc_header}"
             client.say(channel: data.channel, text: "#{name} のタスク作成: #{url}")
           end
