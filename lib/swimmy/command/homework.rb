@@ -9,9 +9,6 @@ module Swimmy
         # Slack入力からキーワードを取得
         keywords = match[:expression] || ""
 
-        # まず「議事録を検索中...」を返す
-        client.say(channel: data.channel, text: "議事録を検索中...")
-
         begin
           result = Dir.chdir(cli_dir) do
             `#{cli_path} search-documents --keywords "#{keywords}" 2>&1`
@@ -38,9 +35,9 @@ module Swimmy
           end
 
           if names.empty?
-            client.say(channel: data.channel, text: "宿題はありません．")
+            client.say(channel: data.channel, text: "文書(#{keywords})中に宿題はありません．")
           else
-            client.say(channel: data.channel, text: "宿題担当: #{names.uniq.join(", ")}")
+            client.say(channel: data.channel, text: "文書(#{keywords})中の宿題担当: #{names.uniq.join(", ")}")
           end
         rescue => e
           client.say(channel: data.channel, text: "エラーが発生しました: #{e.message}")
