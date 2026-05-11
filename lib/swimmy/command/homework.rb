@@ -5,17 +5,14 @@ module Swimmy
       command "homework" do |client, data, match|
         cli_dir = "/home/abo-n/git/RASK_CLI_TEMPLATE"
         cli_path = "#{cli_dir}/target/debug/rask-cli"
+        rask_url = "https://rask.nomlab.org"
 
-        # Slack入力からキーワードを取得
         keywords = match[:expression] || ""
 
         begin
           result = Dir.chdir(cli_dir) do
-            `#{cli_path} search-documents --keywords "#{keywords}" 2>&1`
+            `#{cli_path} get --documents --keywords "#{keywords}" 2>&1`
           end
-          # # コマンド出力内容をSlackに送信（デバッグ用）
-          # client.say(channel: data.channel, text: "コマンド出力: #{result}")
-         
         rescue => e
           client.say(channel: data.channel, text: "コマンドの実行中にエラーが発生しました: #{e.message}")
           return
@@ -39,7 +36,7 @@ module Swimmy
               names << name.strip
               ai_numbers << ai_num.strip
               doc_ids << doc_id.to_s
-              task_urls << (task_url || "https://rask.nomlab.org/tasks/new?desc_header=Created+from+[AI#{ai_num.strip}](https://rask.nomlab.org/documents/#{doc_id}?ai=#{ai_num.strip})")
+              task_urls << (task_url || "#{rask_url}/tasks/new?desc_header=Created+from+[AI#{ai_num.strip}](#{rask_url}/documents/#{doc_id}?ai=#{ai_num.strip})")
             
             end
           end
@@ -52,10 +49,9 @@ module Swimmy
         else
           # 担当者名・AI番号・doc_idをペアで表示
           message = "文書(#{keywords})中の宿題担当(敬称略)\n " 
-          # + names.zip(ai_numbers, doc_ids).map { |n, a, d| "#{n} (AI#{a})" }.join(", ")
           client.say(channel: data.channel, text: message)
           names.zip(ai_numbers, doc_ids, task_urls).each do |name, ai_num, doc_id, task_url|
-            client.say(channel: data.channel, text: "<#{task_url}|#{name}>")
+            client.say(channel: data.channel, text: "<#{task_url}|#{name}{AI#{ai_num}}}>")
           end
         end
 
