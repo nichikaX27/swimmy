@@ -29,6 +29,12 @@ module Swimmy
         task_urls = []
         begin
           json = JSON.parse(result)
+          
+          if json.nil? || json.empty?
+            client.say(channel: data.channel, text: "「#{title}」という文書が見つかりませんでした．")
+            return
+          end
+          
           json.each do |doc|
             desc = doc["description"]
             doc_id = doc["id"] 
@@ -45,11 +51,12 @@ module Swimmy
             end
           end
         rescue JSON::ParserError
-          client.say(channel: data.channel, text: "JSONの解析に失敗しました") if names.any?
+          client.say(channel: data.channel, text: "JSONの解析に失敗しました")
         end
 
         if names.empty?
           message = "文書(#{title})中に宿題はありません．"
+          client.say(channel: data.channel, text: message)
         else
           # 担当者名・AI番号・doc_idをペアで表示
           message = "文書(#{title})中の宿題担当を表示します．\n 以下のリンクからタスクを作成してください．\n" 
