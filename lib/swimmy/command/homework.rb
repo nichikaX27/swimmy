@@ -8,6 +8,11 @@ module Swimmy
 
         title = match[:expression] || ""
 
+        if title.empty?
+          client.say(channel: data.channel, text: "タイトルを指定してください．\n 使用方法 : swimmy homework <タイトル>")
+          return
+        end
+
         begin
           result = Dir.chdir(cli_dir) do
             `#{cli_path} get --documents --title "#{title}" 2>&1`
