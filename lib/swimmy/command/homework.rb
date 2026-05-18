@@ -9,7 +9,7 @@ module Swimmy
         title = match[:expression] || ""
 
         if title.empty?
-          client.say(channel: data.channel, text: "タイトルを指定してください．\n 使用方法 : swimmy homework <タイトル>")
+          client.say(channel: data.channel, text: "文書名を指定してください．\n 使用方法 : swimmy homework <文書名>")
           return
         end
 
@@ -55,16 +55,16 @@ module Swimmy
         end
 
         if names.empty?
-          message = "文書(#{title})中に宿題はありません．"
-          client.say(channel: data.channel, text: message)
+          message = "文書「#{title}」中に宿題はありません．"
         else
           # 担当者名・AI番号・doc_idをペアで表示
-          message = "文書(#{title})中の宿題担当を表示します．\n 以下のリンクからタスクを作成してください．\n" 
-          client.say(channel: data.channel, text: message)
+          message = "文書「#{title}」中の宿題担当を表示します．\n 以下のリンクからタスクを作成してください．\n" 
           names.zip(ai_numbers, doc_ids, task_urls).each do |name, ai_num, doc_id, task_url|
-            client.say(channel: data.channel, text: "<#{task_url}|#{name}{#{ai_num}}}>")
+            message += "<#{task_url}|#{name}{#{ai_num}}>\n"
           end
         end
+        
+        client.say(channel: data.channel, text: message)
 
       help do
         title "homework"
