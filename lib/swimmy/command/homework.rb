@@ -7,6 +7,7 @@ module Swimmy
       TASK_URL_TEMPLATE = "#{RASK_URL}/tasks/new?desc_header=Created+from+[AI%s](#{RASK_URL}/documents/%s?ai=%s)"
       DESC_GT_ENTITY = /\\u003e/
       HOMEWORK_TASK_PATTERN = /--\s*>\s*\(([^!]+) !:(\d+)\)/
+      DOCUMENTS_COMMAND_ARGS = ["get", "--documents", "--title"]
 
       command "homework" do |client, data, match|
         title = match[:expression] || ""
@@ -22,7 +23,7 @@ module Swimmy
         begin
           result = nil
           Dir.chdir(CLI_DIR) do
-            stdout, stderr, status = Open3.capture3(CLI_PATH, "get", "--documents", "--title", title)
+            stdout, stderr, status = Open3.capture3(CLI_PATH, *DOCUMENTS_COMMAND_ARGS, title)
             unless status.success?
               raise "コマンドが失敗しました: #{stderr.strip}"
             end
