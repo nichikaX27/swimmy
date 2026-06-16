@@ -5,6 +5,8 @@ module Swimmy
       CLI_PATH = "#{CLI_DIR}/target/debug/rask-cli"
       RASK_URL = "https://rask.nomlab.org"
       TASK_URL_TEMPLATE = "#{RASK_URL}/tasks/new?desc_header=Created+from+[AI%s](#{RASK_URL}/documents/%s?ai=%s)"
+      DESC_GT_ENTITY = /\\u003e/
+      HOMEWORK_TASK_PATTERN = /--\s*>\s*\(([^!]+) !:(\d+)\)/
 
       command "homework" do |client, data, match|
         title = match[:expression] || ""
@@ -42,8 +44,8 @@ module Swimmy
             task_url = doc["task_url"]
             next unless desc
             # \u003eを>に変換
-            desc = desc.gsub(/\\u003e/, ">")
-            desc.scan(/--\s*>\s*\(([^!]+) !:([0-9]+)\)/).each do |name, ai_num|
+            desc = desc.gsub(DESC_GT_ENTITY, ">")
+            desc.scan(HOMEWORK_TASK_PATTERN).each do |name, ai_num|
               names << name.strip
               ai_numbers << ai_num.strip
               doc_ids << doc_id.to_s
