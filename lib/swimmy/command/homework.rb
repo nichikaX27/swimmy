@@ -7,10 +7,6 @@ module Swimmy
       TASK_URL_TEMPLATE = "#{RASK_URL}/tasks/new?desc_header=Created+from+[AI%s](#{RASK_URL}/documents/%s?ai=%s)"
 
       command "homework" do |client, data, match|
-        cli_dir = CLI_DIR
-        cli_path = CLI_PATH
-        rask_url = RASK_URL
-
         title = match[:expression] || ""
 
         if title.empty?
@@ -19,8 +15,8 @@ module Swimmy
         end
 
         begin
-          result = Dir.chdir(cli_dir) do
-            `#{cli_path} get --documents --title "#{title}" 2>&1`
+          result = Dir.chdir(CLI_DIR) do
+            `#{CLI_PATH} get --documents --title "#{title}" 2>&1`
           end
         rescue => e
           client.say(channel: data.channel, text: "コマンドの実行中にエラーが発生しました: #{e.message}")
