@@ -16,16 +16,23 @@ module Swimmy
           return
         end
 
+        require 'open3'
+        require 'json'
+
         begin
-          result = Dir.chdir(CLI_DIR) do
-            `#{CLI_PATH} get --documents --title "#{title}" 2>&1`
+          result = nil
+          Dir.chdir(CLI_DIR) do
+            stdout, stderr, status = Open3.capture3(CLI_PATH, "get", "--documents", "--title", title)
+            unless status.success?
+              raise "コマンドが失敗しました: #{stderr.strip}"
+            end
+            result = stdout
           end
         rescue => e
           client.say(channel: data.channel, text: "コマンドの実行中にエラーが発生しました: #{e.message}")
           return
         end
 
-        require 'json'
         names = []
         ai_numbers = []
         doc_ids = []
