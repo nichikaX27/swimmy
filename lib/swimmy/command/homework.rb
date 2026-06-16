@@ -1,10 +1,15 @@
 module Swimmy
   module Command
     class Homework < Swimmy::Command::Base
+      CLI_DIR = "/home/abo-n/git/RASK_CLI_TEMPLATE"
+      CLI_PATH = "#{CLI_DIR}/target/debug/rask-cli"
+      RASK_URL = "https://rask.nomlab.org"
+      TASK_URL_TEMPLATE = "#{RASK_URL}/tasks/new?desc_header=Created+from+[AI%s](#{RASK_URL}/documents/%s?ai=%s)"
+
       command "homework" do |client, data, match|
-        cli_dir = "/home/abo-n/git/RASK_CLI_TEMPLATE"
-        cli_path = "#{cli_dir}/target/debug/rask-cli"
-        rask_url = "https://rask.nomlab.org"
+        cli_dir = CLI_DIR
+        cli_path = CLI_PATH
+        rask_url = RASK_URL
 
         title = match[:expression] || ""
 
@@ -46,7 +51,7 @@ module Swimmy
               names << name.strip
               ai_numbers << ai_num.strip
               doc_ids << doc_id.to_s
-              task_urls << (task_url || "#{rask_url}/tasks/new?desc_header=Created+from+[AI#{ai_num.strip}](#{rask_url}/documents/#{doc_id}?ai=#{ai_num.strip})")
+              task_urls << (task_url || format(TASK_URL_TEMPLATE, ai_num.strip, doc_id, ai_num.strip))
             
             end
           end
