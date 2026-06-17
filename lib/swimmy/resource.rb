@@ -23,5 +23,6 @@ module Swimmy
     autoload :BookmarkEntry, "#{dir}/bookmark.rb"
     autoload :CalendarEvent, "#{dir}/calendar_event.rb"
     autoload :ArtistInfo , "#{dir}/artist_info.rb"
+    autoload :Homework,    "#{dir}/homework.rb"
   end
 end
