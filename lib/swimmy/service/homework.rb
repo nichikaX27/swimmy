@@ -10,9 +10,7 @@ module Swimmy
 
       def self.cli_dir
         dir = ENV['RASK_CLI_DIR'].to_s.strip
-        dir = ENV['CLI_DIR'].to_s.strip if dir.empty?
         return dir unless dir.empty?
-
         raise "環境変数 RASK_CLI_DIR または CLI_DIR が設定されていません。`.env` または実行環境に `RASK_CLI_DIR=/path/to/RASK_CLI_TEMPLATE` を追加してください。"
       end
 
