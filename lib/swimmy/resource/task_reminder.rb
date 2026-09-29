@@ -14,7 +14,7 @@ module Swimmy
         content = task.content
         due_at = task.due_at&.to_datetime
         assigner = task.assigner
-        url = task.url
+        url = task.url(ENV["RASK_URL"])
         new(content, due_at, assigner, url)
       end
 

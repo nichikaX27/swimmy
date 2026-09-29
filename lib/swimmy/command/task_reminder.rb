@@ -29,7 +29,8 @@ module Swimmy
             end
           end
         rescue => e
-          msg = "タスク取得中にエラーが発生しました．(詳細: #{e.message})\n"
+          location = e.backtrace&.first || "発生箇所不明"
+          msg = "タスク取得中にエラーが発生しました．(場所: #{location}, 詳細: #{e.message})\n"
         end
         client.say(channel: data.channel, text: msg)
       end
