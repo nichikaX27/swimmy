@@ -12,13 +12,15 @@ module Swimmy
 
       def self.from_task(task)
         content = task.content
-        due_at = task.due_at ? DateTime.parse(task.due_at) : nil
+        due_at = task.due_at&.to_datetime
         assigner = task.assigner
         url = task.url
         new(content, due_at, assigner, url)
       end
 
       def to_s
+        return " <#{@url}|#{@content}> （期限なし）\n" if @due_at.nil?
+
         now = DateTime.now
         diff_days = @due_at - now
         diff_hours = diff_days * 24

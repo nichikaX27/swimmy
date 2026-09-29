@@ -22,7 +22,7 @@ module Swimmy
           end
 
           if tasks_list.empty?
-            return msg << "タスクはありません．\n"
+            msg << "タスクはありません．\n"
           else
             tasks_list.each_with_index do |task, i|
               msg << "#{i + 1}. #{task.to_s}"

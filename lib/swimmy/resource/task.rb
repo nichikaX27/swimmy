@@ -13,7 +13,7 @@ module Swimmy
         @content = content
         @state = state
         @description = description
-        @due_at = Time.parse(due_at)
+        @due_at = due_at && Time.parse(due_at)
         @created_at = Time.parse(created_at)
         @updated_at = Time.parse(updated_at)
         @creator = creator
@@ -38,7 +38,8 @@ module Swimmy
         )
       end
 
-      def url(rask_url)
+      def url(rask_url = nil)
+        return @url if rask_url.nil?
         return '' if rask_url.empty? || id.nil?
         "#{rask_url}/tasks/#{id}"
       end
