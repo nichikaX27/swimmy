@@ -12,9 +12,9 @@ module Swimmy
 
       def self.from_task(task)
         content = task.content
-        due_at = task.due_at ? DateTime.parse(task.due_at) : nil
+        due_at = task.due_at&.to_datetime
         assigner = task.assigner
-        url = task.url
+        url = task.url(ENV["RASK_URL"])
         new(content, due_at, assigner, url)
       end
 
